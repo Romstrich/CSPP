@@ -4,10 +4,16 @@
 import subprocess
 import chardet
 
-my_ping = subprocess.Popen(["/bin/ping", "-c4", "yandex.ru"], stdout=subprocess.PIPE)
 
-for line in my_ping.stdout:
-    result = chardet.detect(line)
-    print(result)
-    line = line.decode(result['encoding']).encode('utf-8')
-    print(line.decode('utf-8'))
+def thePing(resource):
+    my_ping = subprocess.Popen(["/bin/ping", "-c4", resource], stdout=subprocess.PIPE)
+
+    for line in my_ping.stdout:
+        result = chardet.detect(line)
+        print(result)
+        line = line.decode(result['encoding']).encode('utf-8')
+        print(line.decode('utf-8'))
+
+
+thePing('yandex.ru')
+thePing('youtube.com')
