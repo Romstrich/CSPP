@@ -37,13 +37,14 @@ def get_data():
         # print(os_info)
         #«Кодпродукта»
         code_re = re.compile(r'Код продукта:\s*\S*')
-        code_info = ' '.join(code_re.findall(data)[0].split()[2:])
-        print(code_info)
+        code_list.append(' '.join(code_re.findall(data)[0].split()[2:]))
+        #print(code_info)
         #«Тип системы»
         sys_re = re.compile(r'Тип системы:\s*\S*')
-        sys_info = ' '.join(sys_re.findall(data)[0].split()[2:])
-        print(sys_info)
+        sys_list.append(' '.join(sys_re.findall(data)[0].split()[2:]))
+        #print(sys_info)
 
+    print(f'{dev_list}\n{os_list}\n{code_list}\n{sys_list}')
 
 #«Изготовитель системы», «Название ОС», «Код продукта», «Тип системы».
 
