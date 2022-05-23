@@ -23,3 +23,11 @@ DATA_IN = {'items': ['computer', 'printer', 'keyboard', 'mouse'],
                            'mouse': '4€-7€'}
            }
 
+with open('file_1.yaml', 'w', encoding='utf-8') as file:
+    yaml.dump(DATA_IN, file, default_flow_style=False, allow_unicode=True, sort_keys=False
+              )
+with open("file_1.yaml", 'r', encoding='utf-8') as file:
+    DATA_OUT = yaml.load(file, Loader=yaml.SafeLoader)
+
+if DATA_IN == DATA_OUT:
+    print('SUCCESS!!!')
