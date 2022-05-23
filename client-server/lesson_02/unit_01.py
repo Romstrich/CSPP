@@ -15,13 +15,37 @@ import csv
 import chardet
 
 def get_data():
-
+    dev_list=[]
+    os_list=[]
+    code_list=[]
+    sys_list=[]
+#Считаем содержимое в соответствии с кодировкой
     for i in range(1, 4):
         file = open(f'info_{i}.txt','rb')
         data = file.read()
         result = chardet.detect(data)
-        print(result)
-        file.close()
-        print(data.decode(result['encoding']))
+        data=data.decode(result['encoding'])
+        #print(data)
+        # «Изготовитель системы»
+        dev_re=re.compile(r'Изготовитель системы:\s*\S*')
+        dev_list.append(' '.join(dev_re.findall(data)[0].split()[2:]))
+        # dev_info=' '.join(dev_re.findall(data)[0].split()[2:])
+        # print(dev_info)
+        # «Название ОС»
+        os_re =re.compile(r'Название ОС:\s*.*')
+        os_list.append(' '.join(os_re.findall(data)[0].split()[2:]))
+        # print(os_info)
+        #«Кодпродукта»
+        code_re = re.compile(r'Код продукта:\s*\S*')
+        code_info = ' '.join(code_re.findall(data)[0].split()[2:])
+        print(code_info)
+        #«Тип системы»
+        sys_re = re.compile(r'Тип системы:\s*\S*')
+        sys_info = ' '.join(sys_re.findall(data)[0].split()[2:])
+        print(sys_info)
+
+
+#«Изготовитель системы», «Название ОС», «Код продукта», «Тип системы».
+
 
 get_data()
