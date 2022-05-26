@@ -24,7 +24,31 @@ from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
 #Какой ip слушаем -a
 #Какой порт занимаем -p
 def main():
-    pass
+    #пойдём по примеру с порта
+    try:
+        if '-p' in sys.argv:
+            listen_port=int(sys.argv[sys.argv.index('-p')+1]) # следуюющий по порядку параметр
+        else:
+            listen_port=DEFAULT_PORT
+        if listen_port>65535 or listen_port<1024: #пределы портов
+            raise ValueError    #зарубим ошибку значения
+    except ValueError:
+        print('Номер порта от 1024 до 65535.')
+        sys.exit(1) #выход с ошибкой
+    except IndexError:
+        print('После параметра -\'p\' необходимо указать номер порта.')
+        sys.exit(1)
+    #натроим прослушку IP
+    try:
+        if '-a' in sys.argv:
+            listen_address = sys.argv[sys.argv.index('-a') + 1]#как и с портом - отсечка по управляющему знаку
+        else:
+            listen_address = ''#ну...или просто слушаем
+    except IndexError:#ошибка наличия адреса
+        print(
+            'После параметра \'a\'- необходимо указать адрес, который будет слушать сервер.')
+        sys.exit(1)
+
 
 
 if __name__ == '__main__':

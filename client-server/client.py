@@ -26,7 +26,18 @@ from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
 #На какой ip стучимся
 #В какой порт ломим
 def main():
-
+    #для клиента параметры указаны без управляющих символов(просто по порядку)
+    try:
+        server_address = sys.argv[2]    #IP
+        server_port = int(sys.argv[3])  #port
+        if server_port < 1024 or server_port > 65535:
+            raise ValueError #зарубим ошибку значения
+    except IndexError: #Если что-то не так - падаем в дефолт
+        server_address = DEFAULT_IP_ADDRESS
+        server_port = DEFAULT_PORT
+    except ValueError:
+        print('Номер порта от 1024 до 65535. от 1024 до 65535.')
+        sys.exit(1)
     pass
 
 if __name__=='__main__':
