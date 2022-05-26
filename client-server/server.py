@@ -48,7 +48,23 @@ def main():
         print(
             'После параметра \'a\'- необходимо указать адрес, который будет слушать сервер.')
         sys.exit(1)
+    #работа с сокетом
+    transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#сокет
+    transport.bind((listen_address, listen_port))#включамем серверку
+    transport.listen(MAX_CONNECTIONS) # Слушаем порт
 
+    while True:
+        client, client_address = transport.accept()
+        try:
+            message_from_cient = get_message(client)
+            print(message_from_cient)
+            # {'action': 'presence', 'time': 1573760672.167031, 'user': {'account_name': 'Guest'}}
+            response = process_client_message(message_from_cient)
+            send_message(client, response)
+            client.close()
+        except (ValueError, json.JSONDecodeError):
+            print('Принято некорретное сообщение от клиента.')
+            client.close()
 
 
 if __name__ == '__main__':

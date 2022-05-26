@@ -40,5 +40,16 @@ def main():
         sys.exit(1)
     pass
 
+    transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#заводим сокет
+    transport.connect((server_address, server_port))#стучим
+    message_to_server = create_presence()  #тут надо сконструировать
+    send_message(transport, message_to_server) #отправить
+    try:
+        answer = process_ans(get_message(transport)) #принять ответ
+        print(answer)
+    except (ValueError, json.JSONDecodeError):
+        print('Не удалось декодировать сообщение сервера.')
+
+
 if __name__=='__main__':
     main()
