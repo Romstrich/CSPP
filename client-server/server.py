@@ -18,8 +18,19 @@ import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE,MAX_CONNECTIONS, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
-from common.utils import send_message,get_message, process_client_message
+from common.utils import send_message,get_message
 
+def process_client_message(message):
+    if ACTION in message and message[ACTION]==PRESENCE and TIME in message and USER in message\
+            and message[USER][ACCOUNT_NAME]=='Guest':# если базовые вещи на месте
+        return {RESPONSE:200}
+    else:
+        return {
+            RESPONSE:400,
+            ERROR:'Request for lesson 3 is not correct'
+        }
+
+        return {"some response":"0"}
 #server.py -a 127.0.0.1 -p 3039
 #Какой ip слушаем -a
 #Какой порт занимаем -p

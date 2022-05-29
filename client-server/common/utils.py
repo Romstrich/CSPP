@@ -36,7 +36,5 @@ def send_message(sock, message):
 
 
 
-def process_client_message(message):
-    if message:
-        return {"some response":"0"}
+
 
