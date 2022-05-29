@@ -17,8 +17,8 @@ import socket
 import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
-    RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
-
+    RESPONSE,MAX_CONNECTIONS, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
+from common.utils import send_message,get_message, process_client_message
 
 #server.py -a 127.0.0.1 -p 3039
 #Какой ip слушаем -a
@@ -56,10 +56,10 @@ def main():
     while True:
         client, client_address = transport.accept()
         try:
-            message_from_cient = get_message(client)
-            print(message_from_cient)
+            message_from_client = get_message(client)
+            print(message_from_client)
             # {'action': 'presence', 'time': 1573760672.167031, 'user': {'account_name': 'Guest'}}
-            response = process_client_message(message_from_cient)
+            response = process_client_message(message_from_client)
             send_message(client, response)
             client.close()
         except (ValueError, json.JSONDecodeError):

@@ -1,7 +1,7 @@
 """Утилиты"""
 
 import json
-from common.variables import MAX_PACKAGE_LENGTH, ENCODING
+from .variables import MAX_PACKAGE_LENGTH, ENCODING
 
 def get_message(client):
     '''
@@ -33,3 +33,10 @@ def send_message(sock, message):
     js_message = json.dumps(message)
     encoded_message = js_message.encode(ENCODING)
     sock.send(encoded_message)
+
+
+
+def process_client_message(message):
+    if message:
+        return {"some response":"0"}
+

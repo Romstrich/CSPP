@@ -18,21 +18,38 @@ import sys
 import json
 import socket
 import time
-#модуль с готовыми заголовками протокола
+# модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
+from common.utils import get_message, send_message
 
-#server.py 127.0.0.1  3039
-#На какой ip стучимся
-#В какой порт ломим
+
+def create_presence():
+    out = {
+        ACTION: PRESENCE,
+        TIME: time.time(),
+        USER: {
+            ACCOUNT_NAME: 'Guest',
+        }
+    }
+    return out
+
+
+def process_ans(message):
+    return message
+
+
+# client.py 127.0.0.1  3039
+# На какой ip стучимся
+# В какой порт ломим
 def main():
-    #для клиента параметры указаны без управляющих символов(просто по порядку)
+    # для клиента параметры указаны без управляющих символов(просто по порядку)
     try:
-        server_address = sys.argv[2]    #IP
-        server_port = int(sys.argv[3])  #port
+        server_address = sys.argv[2]  # IP
+        server_port = int(sys.argv[3])  # port
         if server_port < 1024 or server_port > 65535:
-            raise ValueError #зарубим ошибку значения
-    except IndexError: #Если что-то не так - падаем в дефолт
+            raise ValueError  # зарубим ошибку значения
+    except IndexError:  # Если что-то не так - падаем в дефолт
         server_address = DEFAULT_IP_ADDRESS
         server_port = DEFAULT_PORT
     except ValueError:
@@ -40,16 +57,16 @@ def main():
         sys.exit(1)
     pass
 
-    transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#заводим сокет
-    transport.connect((server_address, server_port))#стучим
-    message_to_server = create_presence()  #тут надо сконструировать
-    send_message(transport, message_to_server) #отправить
+    transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # заводим сокет
+    transport.connect((server_address, server_port))  # стучим
+    message_to_server = create_presence()  # тут надо сконструировать
+    send_message(transport, message_to_server)  # отправить
     try:
-        answer = process_ans(get_message(transport)) #принять ответ
+        answer = process_ans(get_message(transport))  # принять ответ
         print(answer)
     except (ValueError, json.JSONDecodeError):
         print('Не удалось декодировать сообщение сервера.')
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
