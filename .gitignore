@@ -1,4 +1,4 @@
 /.idea
 /env
-/unit_tests/
+/unit_tests
 test_point.py
