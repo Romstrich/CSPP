@@ -30,7 +30,7 @@ def process_client_message(message):
             ERROR:'Request for lesson 3 is not correct'
         }
 
-        return {"some response":"0"}
+    return {"some response":"0"}
 #server.py -a 127.0.0.1 -p 3039
 #Какой ip слушаем -a
 #Какой порт занимаем -p

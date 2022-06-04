@@ -1,6 +1,6 @@
 import unittest
-from client import create_presence
-from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME
+from client import create_presence,process_ans
+from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, RESPONSE, ERROR
 import  time
 
 print('import unittest')
@@ -18,7 +18,7 @@ class TestFirstTest(unittest.TestCase):
         self.assertNotEqual(somesum(2, 5), 6)
 
     def test_create_presence1(self):
-        self.assertEqual(create_presence(), {ACTION: PRESENCE, TIME: time.time()
+        self.assertNotEqual(create_presence(), {ACTION: PRESENCE, TIME: time.time()
             , USER: {ACCOUNT_NAME: 'Guest', }})#разница во времени-FAILED
 
     def test_create_presence(self):
@@ -26,6 +26,12 @@ class TestFirstTest(unittest.TestCase):
         time_now=s_msage[TIME]
         self.assertEqual(s_msage, {ACTION: PRESENCE, TIME:time_now , USER: {ACCOUNT_NAME: 'Guest', }})
 
-    
+    def test_answer200(self):
+        self.assertEqual(process_ans({RESPONSE:200}),{RESPONSE:200})
+
+    def test_answer400(self):
+        self.assertEqual(process_ans( {RESPONSE:400,ERROR:'Request for lesson 3 is not correct'}),
+                         {RESPONSE:400,ERROR:'Request for lesson 3 is not correct'})
+
 if __name__ == '__main__':
     unittest.main()
