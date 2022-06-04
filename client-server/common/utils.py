@@ -3,6 +3,10 @@
 import json
 from .variables import MAX_PACKAGE_LENGTH, ENCODING
 
+class NonDictInputError(Exception):
+    def __str__(self):
+        return 'Аргумент функции должен быть словарём.'
+
 def get_message(client):
     '''
     Утилита приёма и декодирования сообщения
@@ -29,12 +33,8 @@ def send_message(sock, message):
     :param message:
     :return:
     '''
-
+    if not isinstance(message, dict):
+        raise NonDictInputError
     js_message = json.dumps(message)
     encoded_message = js_message.encode(ENCODING)
     sock.send(encoded_message)
-
-
-
-
-
