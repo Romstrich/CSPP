@@ -13,7 +13,7 @@
 
 
 '''
-
+import logging
 import sys
 import json
 import socket
@@ -23,6 +23,9 @@ from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
 from common.utils import get_message, send_message
 
+
+#Создадим лог клиенту
+logging.basicConfig(filename = "log/client.log",format = "%(levelname)-10s %(asctime)s %(message)s",level = logging.INFO)
 
 def create_presence():
     out = {

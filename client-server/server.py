@@ -11,6 +11,7 @@
 ответ клиенту; имеет параметры командной строки: -p <port> — TCP-порт для работы (по умолчанию
 использует 7777); -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все доступные адреса).
 '''
+import logging
 import sys
 import json
 import socket
@@ -19,6 +20,9 @@ import time
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT
 from common.utils import send_message,get_message
+
+#создадим лог серверу
+logging.basicConfig(filename = "log/server.log",format = "%(levelname)-10s %(asctime)s %(message)s",level = logging.INFO)
 
 def process_client_message(message):
     if ACTION in message and message[ACTION]==PRESENCE and TIME in message and USER in message\
