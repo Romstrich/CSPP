@@ -17,7 +17,7 @@ import socket
 import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
-    RESPONSE,MAX_CONNECTIONS, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
+    RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT
 from common.utils import send_message,get_message
 
 def process_client_message(message):
