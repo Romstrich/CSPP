@@ -25,14 +25,16 @@ from common.utils import get_message, send_message
 
 
 #Создадим лог клиенту
-logging.basicConfig(filename = "log/client.log",format = "%(levelname)-10s %(asctime)s %(message)s",level = logging.INFO)
+logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)
+log = logging.getLogger('client_logger')
+
 
 def create_presence():
     out = {
         ACTION: PRESENCE,
         TIME: time.time(),
         USER: {
-            ACCOUNT_NAME: 'Guest',
+            ACCOUNT_NAME: '',
         }
     }
     return out
@@ -53,9 +55,11 @@ def main():
         if server_port < 1024 or server_port > 65535:
             raise ValueError  # зарубим ошибку значения
     except IndexError:  # Если что-то не так - падаем в дефолт
+        log.error('некорректный адрес сервера - переход к дефолтным значениям')
         server_address = DEFAULT_IP_ADDRESS
         server_port = DEFAULT_PORT
     except ValueError:
+        log.error('некорректный порт сервера - завершение работы')
         print('Номер порта от 1024 до 65535. от 1024 до 65535.')
         sys.exit(1)
     pass
@@ -68,6 +72,7 @@ def main():
         answer = process_ans(get_message(transport))  # принять ответ
         print(answer)
     except (ValueError, json.JSONDecodeError):
+        log.error('некорректная кодировка')
         print('Не удалось декодировать сообщение сервера.')
 
 

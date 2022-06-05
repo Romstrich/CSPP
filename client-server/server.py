@@ -22,13 +22,16 @@ from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
 from common.utils import send_message,get_message
 
 #создадим лог серверу
-logging.basicConfig(filename = "log/server.log",format = "%(levelname)-10s %(asctime)s %(message)s",level = logging.INFO)
+logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)
+log = logging.getLogger('server_logger')
 
 def process_client_message(message):
     if ACTION in message and message[ACTION]==PRESENCE and TIME in message and USER in message\
             and message[USER][ACCOUNT_NAME]=='Guest':# если базовые вещи на месте
+        log.info('нормальное сообщение от клиента')
         return {RESPONSE:200}
     else:
+        log.error('ошибочное сообщение от клиента')
         return {
             RESPONSE:400,
             ERROR:'Request for lesson 3 is not correct'
@@ -48,9 +51,11 @@ def main():
         if listen_port>65535 or listen_port<1024: #пределы портов
             raise ValueError    #зарубим ошибку значения
     except ValueError:
+        log.error('некорректный порт в параметре')
         print('Номер порта от 1024 до 65535.')
         sys.exit(1) #выход с ошибкой
     except IndexError:
+        log.error('некорректный порт в параметре')
         print('После параметра -\'p\' необходимо указать номер порта.')
         sys.exit(1)
     #натроим прослушку IP
@@ -60,6 +65,7 @@ def main():
         else:
             listen_address = ''#ну...или просто слушаем
     except IndexError:#ошибка наличия адреса
+        log.error('некорректный адрес в параметре')
         print(
             'После параметра \'a\'- необходимо указать адрес, который будет слушать сервер.')
         sys.exit(1)
@@ -78,6 +84,7 @@ def main():
             send_message(client, response)
             client.close()
         except (ValueError, json.JSONDecodeError):
+            log.error('Некорректное сообщение от клиента')
             print('Принято некорретное сообщение от клиента.')
             client.close()
 
