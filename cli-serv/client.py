@@ -31,15 +31,16 @@ from common.decors import *
 
 #Создадим лог клиенту
 logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)
-log = logging.getLogger('client_logger')
+LOGGER = logging.getLogger('client_logger')
 
-
+@log
 def create_presence():
+    LOGGER.debug('Сообщение серверу')
     out = {
         ACTION: PRESENCE,
         TIME: time.time(),
         USER: {
-            ACCOUNT_NAME: '',
+            ACCOUNT_NAME: 'Guest',
         }
     }
     return out
@@ -60,7 +61,7 @@ def main():
         if server_port < 1024 or server_port > 65535:
             raise ValueError  # зарубим ошибку значения
     except IndexError:  # Если что-то не так - падаем в дефолт
-        log.error('некорректный адрес сервера - переход к дефолтным значениям')
+        # log.error('некорректный адрес сервера - переход к дефолтным значениям')
         server_address = DEFAULT_IP_ADDRESS
         server_port = DEFAULT_PORT
     except ValueError:
@@ -77,7 +78,7 @@ def main():
         answer = process_ans(get_message(transport))  # принять ответ
         print(answer)
     except (ValueError, json.JSONDecodeError):
-        log.error('некорректная кодировка')
+        # log.error('некорректная кодировка')
         print('Не удалось декодировать сообщение сервера.')
 
 

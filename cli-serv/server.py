@@ -25,16 +25,16 @@ from common.decors import *
 
 #создадим лог серверу
 logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)
-log = logging.getLogger('server_logger')
+LOGGER = logging.getLogger('server_logger')
 
-
+@log
 def process_client_message(message):
     if ACTION in message and message[ACTION]==PRESENCE and TIME in message and USER in message\
             and message[USER][ACCOUNT_NAME]=='Guest':# если базовые вещи на месте
-        log.info('нормальное сообщение от клиента')
+        LOGGER.info('нормальное сообщение от клиента')
         return {RESPONSE:200}
     else:
-        log.error('ошибочное сообщение от клиента')
+        LOGGER.error('ошибочное сообщение от клиента')
         return {
             RESPONSE:400,
             ERROR:'Request for lesson 3 is not correct'
@@ -87,7 +87,7 @@ def main():
             send_message(client, response)
             client.close()
         except (ValueError, json.JSONDecodeError):
-            log.error('Некорректное сообщение от клиента')
+            # log.error('Некорректное сообщение от клиента')
             print('Принято некорретное сообщение от клиента.')
             client.close()
 
