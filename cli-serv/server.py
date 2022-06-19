@@ -20,6 +20,8 @@ import time
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT
 from common.utils import send_message,get_message
+#модуль с декоратором
+from common.decors import *
 
 #создадим лог серверу
 logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)

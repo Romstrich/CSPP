@@ -4,7 +4,8 @@ import sys
 import logging
 
 
+print(sys.argv[0].find('client'))
 if sys.argv[0].find('client') == -1:
-    print('Запущен клиент')
-else:
     print('Запущен сервер')
+else:
+    print('Запущен клиент')
