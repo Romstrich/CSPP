@@ -25,6 +25,7 @@ from common.utils import send_message,get_message
 logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)
 log = logging.getLogger('server_logger')
 
+
 def process_client_message(message):
     if ACTION in message and message[ACTION]==PRESENCE and TIME in message and USER in message\
             and message[USER][ACCOUNT_NAME]=='Guest':# если базовые вещи на месте
