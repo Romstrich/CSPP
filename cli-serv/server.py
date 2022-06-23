@@ -84,6 +84,35 @@ def main():
     messages = []
 
     while True:
+        # Ждём подключения, если таймаут вышел, ловим исключение.
+        try:
+            client, client_address = transport.accept()
+        except OSError:
+            pass
+        else:
+            print(f'соединено {client_address}')
+            clients.append(client)
+
+        #Списки очередей
+        recv_data_lst = []
+        send_data_lst = []
+        err_lst = []
+        #Берём ждунов
+        try:
+            if clients:
+                #работа с select (переключатель)
+                recv_data_lst, send_data_lst, err_lst = select.select(clients, clients, [], 0)
+        except OSError:
+            pass
+
+        #Разберём очередь сообщений
+        if recv_data_lst:
+            for client_with_message in recv_data_lst:
+                try:
+                    process_client_message(get_message(client_with_message),messages, client_with_message)
+                except:
+                    print(f'Клиент {client_with_message.getpeername()} отключился от сервера.')
+                    clients.remove(client_with_message)
         # client, client_address = transport.accept()
         # try:
         #     message_from_client = get_message(client)
