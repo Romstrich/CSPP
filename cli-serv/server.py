@@ -115,6 +115,7 @@ def main():
         if recv_data_lst:
             for client_with_message in recv_data_lst:
                 try:
+                    print(f'Клиент {client_with_message.getpeername()} Подключен')
                     process_client_message(get_message(client_with_message),messages, client_with_message)
 
                 except:
