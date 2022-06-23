@@ -73,6 +73,7 @@ def main():
     transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # заводим сокет
     transport.connect((server_address, server_port))  # стучим
     message_to_server = create_presence()  # тут надо сконструировать
+    print(message_to_server)
     send_message(transport, message_to_server)  # отправить
     try:
         answer = process_ans(get_message(transport))  # принять ответ
