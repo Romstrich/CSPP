@@ -15,6 +15,7 @@ import logging
 import sys
 import json
 import socket
+import select
 import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
@@ -75,21 +76,26 @@ def main():
     #работа с сокетом
     transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#сокет
     transport.bind((listen_address, listen_port))#включамем серверку
+    transport.settimeout(0.5)#Зазор прослушки
     transport.listen(MAX_CONNECTIONS) # Слушаем порт
 
+    # список клиентов , очередь сообщений
+    clients = []
+    messages = []
+
     while True:
-        client, client_address = transport.accept()
-        try:
-            message_from_client = get_message(client)
-            print(message_from_client)
-            # {'action': 'presence', 'time': 1573760672.167031, 'user': {'account_name': 'Guest'}}
-            response = process_client_message(message_from_client)
-            send_message(client, response)
-            client.close()
-        except (ValueError, json.JSONDecodeError):
-            # log.error('Некорректное сообщение от клиента')
-            print('Принято некорретное сообщение от клиента.')
-            client.close()
+        # client, client_address = transport.accept()
+        # try:
+        #     message_from_client = get_message(client)
+        #     print(message_from_client)
+        #     # {'action': 'presence', 'time': 1573760672.167031, 'user': {'account_name': 'Guest'}}
+        #     response = process_client_message(message_from_client)
+        #     send_message(client, response)
+        #     client.close()
+        # except (ValueError, json.JSONDecodeError):
+        #     # log.error('Некорректное сообщение от клиента')
+        #     print('Принято некорретное сообщение от клиента.')
+        #     client.close()
 
 
 if __name__ == '__main__':

@@ -23,7 +23,7 @@ import time
 
 # модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
-    RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT
+    RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT,MAX_CONNECTIONS
 from common.utils import get_message, send_message
 #модуль с декоратором
 from common.decors import *
