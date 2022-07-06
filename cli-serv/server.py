@@ -20,7 +20,7 @@ import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT,MESSAGE,MESSAGE_TEXT,SENDER,\
-    DESTINATION, RESPONSE_200, RESPONSE_400
+    DESTINATION, RESPONSE_200, RESPONSE_400, EXIT
 
 from common.utils import send_message,get_message
 #модуль с декоратором
@@ -45,15 +45,22 @@ def process_client_message(message, messages_list, client, clients, names):
             clients.remove(client)
             client.close()# закрыл сокет
         return
+    #приём сообщения
     elif ACTION in message and message[ACTION] == MESSAGE and \
             TIME in message and MESSAGE_TEXT in message and \
             DESTINATION in message and SENDER in message:
         messages_list.append(message)#в список рассылки
         return
+    #пользователь ушёл:
+    elif ACTION in message and message[ACTION] == EXIT and ACCOUNT_NAME in message:
+        clients.remove(names[message[ACCOUNT_NAME]])#удаляем из очереди
+        names[message[ACCOUNT_NAME]].close()
+        del names[message[ACCOUNT_NAME]]
+        return
         # Иначе отдаём Bad request
     else:
         send_message(client, {
-            RESPONSE: 400,
+            RESPONSE: RESPONSE_400,
             ERROR: 'Bad Request'
         })
         return
@@ -146,21 +153,26 @@ def main():
                     print(f'Клиент {client_with_message.getpeername()} отключился от сервера.')
                     clients.remove(client_with_message)
 
-        if messages and send_data_lst:
-            message = {
-                ACTION: MESSAGE,
-                SENDER: messages[0][0],
-                TIME: time.time(),
-                MESSAGE_TEXT: messages[0][1]
-            }
-            del messages[0]
-            for waiting_client in send_data_lst:
-                try:
-                    print(message)
-                    send_message(waiting_client, message)
-                except:
-                    LOGGER.info(f'Клиент {waiting_client.getpeername()} отключился от сервера.')
-                    clients.remove(waiting_client)
+        #полетели сообщения
+        for i in messages:
+            try:
+            except:
+        messages.clear()
+        # if messages and send_data_lst:
+        #     message = {
+        #         ACTION: MESSAGE,
+        #         SENDER: messages[0][0],
+        #         TIME: time.time(),
+        #         MESSAGE_TEXT: messages[0][1]
+        #     }
+        #     del messages[0]
+        #     for waiting_client in send_data_lst:
+        #         try:
+        #             print(message)
+        #             send_message(waiting_client, message)
+        #         except:
+        #             LOGGER.info(f'Клиент {waiting_client.getpeername()} отключился от сервера.')
+        #             clients.remove(waiting_client)
 
 
 

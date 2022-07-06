@@ -25,6 +25,7 @@ RESPONSE = 'response'
 ERROR = 'error'
 MESSAGE = 'message'
 MESSAGE_TEXT = 'mess_text'
+EXIT = 'exit'
 
 RESPONSE_200 = {RESPONSE: 200}
 RESPONSE_400 = {RESPONSE: 400, ERROR: None}
