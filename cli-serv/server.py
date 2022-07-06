@@ -19,7 +19,9 @@ import select
 import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
-    RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT,MESSAGE,MESSAGE_TEXT,SENDER
+    RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT,MESSAGE,MESSAGE_TEXT,SENDER,\
+    DESTINATION, RESPONSE_200
+
 from common.utils import send_message,get_message
 #модуль с декоратором
 from common.decors import *
@@ -29,12 +31,13 @@ logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname
 LOGGER = logging.getLogger('server_logger')
 
 @log
-def process_client_message(message, messages_list, client):
+def process_client_message(message, messages_list, client, clients, names):
     if ACTION in message and message[ACTION] == PRESENCE and TIME in message \
-            and USER in message and message[USER][ACCOUNT_NAME] == 'Guest':
-        send_message(client, {RESPONSE: 200})
-        return
-        # Если это сообщение, то добавляем его в очередь сообщений. Ответ не требуется.
+            and USER in message:
+        #Регистрация
+        if message[USER][ACCOUNT_NAME] not in names.keys():
+            names[message[USER][ACCOUNT_NAME]] = client
+            send_message(client, RESPONSE_200)
     elif ACTION in message and message[ACTION] == MESSAGE and \
             TIME in message and MESSAGE_TEXT in message:
         messages_list.append((message[ACCOUNT_NAME], message[MESSAGE_TEXT]))
@@ -47,6 +50,19 @@ def process_client_message(message, messages_list, client):
         })
         return
 
+# отправка клиенту
+def process_message(message, names, listen_socks):
+    #message[DESTINATION] - имя
+    #names[message[DESTINATION]] получатель
+    if message[DESTINATION] in names and names[message[DESTINATION]] in listen_socks:
+        send_message(names[message[DESTINATION]], message)
+        print(f'Отправлено сообщение пользователю {message[DESTINATION]} '
+                    f'от пользователя {message[SENDER]}.')
+    elif message[DESTINATION] in names and names[message[DESTINATION]] not in listen_socks:
+        raise ConnectionError
+    else:
+        print(f'Пользователь {message[DESTINATION]} не зарегистрирован на сервере, '
+            f'отправка сообщения невозможна.')
 
 #server.py -a 127.0.0.1 -p 3039
 #Какой ip слушаем -a
@@ -138,18 +154,7 @@ def main():
                     LOGGER.info(f'Клиент {waiting_client.getpeername()} отключился от сервера.')
                     clients.remove(waiting_client)
 
-        # client, client_address = transport.accept()
-        # try:
-        #     message_from_client = get_message(client)
-        #     print(message_from_client)
-        #     # {'action': 'presence', 'time': 1573760672.167031, 'user': {'account_name': 'Guest'}}
-        #     response = process_client_message(message_from_client)
-        #     send_message(client, response)
-        #     client.close()
-        # except (ValueError, json.JSONDecodeError):
-        #     # log.error('Некорректное сообщение от клиента')
-        #     print('Принято некорретное сообщение от клиента.')
-        #     client.close()
+
 
 
 if __name__ == '__main__':
