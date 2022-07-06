@@ -20,7 +20,7 @@ import time
 #модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE,MAX_CONNECTIONS, ERROR,  DEFAULT_PORT,MESSAGE,MESSAGE_TEXT,SENDER,\
-    DESTINATION, RESPONSE_200
+    DESTINATION, RESPONSE_200, RESPONSE_400
 
 from common.utils import send_message,get_message
 #модуль с декоратором
@@ -38,9 +38,17 @@ def process_client_message(message, messages_list, client, clients, names):
         if message[USER][ACCOUNT_NAME] not in names.keys():
             names[message[USER][ACCOUNT_NAME]] = client
             send_message(client, RESPONSE_200)
+        else:
+            response = RESPONSE_400 #сообщение об ошибке
+            response[ERROR] = 'Имя пользователя уже занято.'
+            send_message(client, response)
+            clients.remove(client)
+            client.close()# закрыл сокет
+        return
     elif ACTION in message and message[ACTION] == MESSAGE and \
-            TIME in message and MESSAGE_TEXT in message:
-        messages_list.append((message[ACCOUNT_NAME], message[MESSAGE_TEXT]))
+            TIME in message and MESSAGE_TEXT in message and \
+            DESTINATION in message and SENDER in message:
+        messages_list.append(message)#в список рассылки
         return
         # Иначе отдаём Bad request
     else:
