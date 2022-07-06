@@ -18,13 +18,14 @@ import sys
 import json
 import socket
 import time
+from errors import IncorrectDataRecivedError, ReqFieldMissingError, ServerError
 
 
 
 # модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     MESSAGE, SENDER, DEFAULT_IP_ADDRESS, DEFAULT_PORT, EXIT, MESSAGE_TEXT,\
-    DESTINATION
+    DESTINATION, RESPONSE
 from common.utils import get_message, send_message
 #модуль с декоратором
 from common.decors import *
@@ -52,23 +53,87 @@ def message_from_server(socket, my_username):
                     and MESSAGE_TEXT in message and message[DESTINATION] == my_username:
                 print(f'\n{message[SENDER]} написал:'
                       f'\n{message[MESSAGE_TEXT]}')
-        except:
-            pass
+            else:
+                print(f'Получено некорректное сообщение с сервера: {message}')
+        except IncorrectDataRecivedError:
+            print(f'Не удалось декодировать полученное сообщение.')
+        except (OSError, ConnectionError, ConnectionAbortedError,
+                ConnectionResetError, json.JSONDecodeError):
+            print(f'Потеряно соединение с сервером.')
+            break
 
+#посылка сообщения
+def create_message(sock, account_name='Guest'):
+    to_user = input('Введите получателя сообщения: ')
+    message = input('Введите сообщение для отправки: ')
+    message_dict = {
+        ACTION: MESSAGE,
+        SENDER: account_name,
+        DESTINATION: to_user,
+        TIME: time.time(),
+        MESSAGE_TEXT: message
+    }
+    LOGGER.debug(f'Сформирован словарь сообщения: {message_dict}')
+    try:
+        send_message(sock, message_dict)
+        LOGGER.info(f'Отправлено сообщение для пользователя {to_user}')
+    except:
+        LOGGER.critical('Потеряно соединение с сервером.')
+        sys.exit(1)
+
+def user_interactive(sock, username):
+    """Функция взаимодействия с пользователем, запрашивает команды, отправляет сообщения"""
+    print_help()
+    while True:
+        command = input('Введите команду: ')
+        if command == 'message':
+            create_message(sock, username)
+        elif command == 'help':
+            print_help()
+        elif command == 'exit':
+            send_message(sock, create_exit_message(username))
+            print('Завершение соединения.')
+            LOGGER.info('Завершение работы по команде пользователя.')
+            # Задержка неоходима, чтобы успело уйти сообщение о выходе
+            time.sleep(0.5)
+            break
+        else:
+            print('Команда не распознана, попробойте снова. help - вывести поддерживаемые команды.')
+
+def print_help():
+    """Функция выводящяя справку по использованию"""
+    print('Поддерживаемые команды:')
+    print('message - отправить сообщение. Кому и текст будет запрошены отдельно.')
+    print('help - вывести подсказки по командам')
+    print('exit - выход из программы')
 
 
 @log
-def create_presence():
+def create_presence(account_name):
     LOGGER.debug('Сообщение серверу')
     out = {
         ACTION: PRESENCE,
         TIME: time.time(),
         USER: {
-            ACCOUNT_NAME: 'Guest',
+            ACCOUNT_NAME: account_name
         }
     }
     return out
-
+@log
+def process_response_ans(message):
+    """
+    Функция разбирает ответ сервера на сообщение о присутствии,
+    возращает 200 если все ОК или генерирует исключение при ошибке
+    :param message:
+    :return:
+    """
+    LOGGER.debug(f'Разбор приветственного сообщения от сервера: {message}')
+    if RESPONSE in message:
+        if message[RESPONSE] == 200:
+            return '200 : OK'
+        elif message[RESPONSE] == 400:
+            raise ServerError(f'400 : {message[ERROR]}')
+    raise ReqFieldMissingError(RESPONSE)
 
 def process_ans(message):
     return message
