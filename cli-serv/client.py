@@ -23,7 +23,8 @@ import time
 
 # модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
-    RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT, EXIT
+    MESSAGE, SENDER, DEFAULT_IP_ADDRESS, DEFAULT_PORT, EXIT, MESSAGE_TEXT,\
+    DESTINATION
 from common.utils import get_message, send_message
 #модуль с декоратором
 from common.decors import *
@@ -42,8 +43,19 @@ def create_exit_message(account_name):
         ACCOUNT_NAME: account_name
     }
 
-def message_from_server(sock, my_username):
-    pass
+def message_from_server(socket, my_username):
+    while True:
+        try:
+            message = get_message(socket)
+            if ACTION in message and message[ACTION] == MESSAGE and \
+                    SENDER in message and DESTINATION in message \
+                    and MESSAGE_TEXT in message and message[DESTINATION] == my_username:
+                print(f'\n{message[SENDER]} написал:'
+                      f'\n{message[MESSAGE_TEXT]}')
+        except:
+            pass
+
+
 
 @log
 def create_presence():
