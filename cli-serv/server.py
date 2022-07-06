@@ -119,6 +119,8 @@ def main():
     # список клиентов , очередь сообщений
     clients = []
     messages = []
+    #имена клиентов и их сокеты
+    names = dict()
 
     while True:
         # Ждём подключения, если таймаут вышел, ловим исключение.
@@ -147,7 +149,7 @@ def main():
             for client_with_message in recv_data_lst:
                 try:
                     print(f'Клиент {client_with_message.getpeername()} Подключен')
-                    process_client_message(get_message(client_with_message),messages, client_with_message)
+                    process_client_message(get_message(client_with_message),messages, client_with_message, clients, names)
 
                 except:
                     print(f'Клиент {client_with_message.getpeername()} отключился от сервера.')
@@ -156,7 +158,11 @@ def main():
         #полетели сообщения
         for i in messages:
             try:
-            except:
+                process_message(i, names, send_data_lst)
+            except Exception:
+                print(f'Связь с клиентом с именем {i[DESTINATION]} была потеряна')
+                clients.remove(names[i[DESTINATION]])
+                del names[i[DESTINATION]]
         messages.clear()
         # if messages and send_data_lst:
         #     message = {
