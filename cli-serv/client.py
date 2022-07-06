@@ -23,7 +23,7 @@ import time
 
 # модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
-    RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT,MAX_CONNECTIONS
+    RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT, EXIT
 from common.utils import get_message, send_message
 #модуль с декоратором
 from common.decors import *
@@ -32,6 +32,18 @@ from common.decors import *
 #Создадим лог клиенту
 logging.basicConfig(filename = "log/CSApp.log",format = "%(asctime)s %(levelname)-10s %(module)s %(message)s",level = logging.INFO)
 LOGGER = logging.getLogger('client_logger')
+
+#сообщение о выходе
+@log
+def create_exit_message(account_name):
+    return {
+        ACTION: EXIT,
+        TIME: time.time(),
+        ACCOUNT_NAME: account_name
+    }
+
+def message_from_server(sock, my_username):
+    pass
 
 @log
 def create_presence():
