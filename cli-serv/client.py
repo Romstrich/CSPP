@@ -19,13 +19,13 @@ import json
 import socket
 import time
 from errors import IncorrectDataRecivedError, ReqFieldMissingError, ServerError
-
+import threading
 
 
 # модуль с готовыми заголовками протокола
 from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     MESSAGE, SENDER, DEFAULT_IP_ADDRESS, DEFAULT_PORT, EXIT, MESSAGE_TEXT,\
-    DESTINATION, RESPONSE
+    DESTINATION, RESPONSE, ERROR
 from common.utils import get_message, send_message
 #модуль с декоратором
 from common.decors import *
@@ -159,18 +159,63 @@ def main():
         sys.exit(1)
     pass
 
-    transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # заводим сокет
-    transport.connect((server_address, server_port))  # стучим
-    while True:
-        message_to_server = create_presence()  # тут надо сконструировать
-        print(message_to_server)
-        send_message(transport, message_to_server)  # отправить
-        try:
-            answer = process_ans(get_message(transport))  # принять ответ
-            print(answer)
-        except (ValueError, json.JSONDecodeError):
-            # log.error('некорректная кодировка')
-            print('Не удалось декодировать сообщение сервера.')
+    #Имя пользователя, потом-подключение
+    client_name = input('Введите имя пользователя: ')
+
+    try:
+        transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # заводим сокет
+        transport.connect((server_address, server_port))  # стучим
+        send_message(transport, create_presence(client_name))
+        answer = process_response_ans(get_message(transport))
+        print(f'Установлено соединение с сервером {client_name}.')
+    except json.JSONDecodeError:
+        print('Не удалось декодировать полученную Json строку.')
+        sys.exit(1)
+    except ServerError as error:
+        print(f'При установке соединения сервер вернул ошибку: {error.text}')
+        sys.exit(1)
+    except ReqFieldMissingError as missing_error:
+        print(f'В ответе сервера отсутствует необходимое поле {missing_error.missing_field}')
+        sys.exit(1)
+    except (ConnectionRefusedError, ConnectionError):
+        print(
+            f'Не удалось подключиться к серверу {server_address}:{server_port}, '
+            f'конечный компьютер отверг запрос на подключение.')
+        sys.exit(1)
+
+    else:
+        # Если соединение с сервером установлено корректно,
+        # запускаем клиенский процесс приёма сообщний
+        receiver = threading.Thread(target=message_from_server, args=(transport, client_name))
+        receiver.daemon = True
+        receiver.start()
+
+        # затем запускаем отправку сообщений и взаимодействие с пользователем.
+        user_interface = threading.Thread(target=user_interactive, args=(transport, client_name))
+        user_interface.daemon = True
+        user_interface.start()
+        LOGGER.debug('Запущены процессы')
+
+        # Watchdog основной цикл, если один из потоков завершён,
+        # то значит или потеряно соединение или пользователь
+        # ввёл exit. Поскольку все события обработываются в потоках,
+        # достаточно просто завершить цикл.
+        while True:
+            time.sleep(1)
+            if receiver.is_alive() and user_interface.is_alive():
+                continue
+            break
+
+    # while True:
+    #     message_to_server = create_presence()  # тут надо сконструировать
+    #     print(message_to_server)
+    #     send_message(transport, message_to_server)  # отправить
+    #     try:
+    #         answer = process_ans(get_message(transport))  # принять ответ
+    #         print(answer)
+    #     except (ValueError, json.JSONDecodeError):
+    #         # log.error('некорректная кодировка')
+    #         print('Не удалось декодировать сообщение сервера.')
 
 
 if __name__ == '__main__':
